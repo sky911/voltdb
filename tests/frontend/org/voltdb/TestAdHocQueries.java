@@ -621,7 +621,8 @@ public class TestAdHocQueries extends AdHocQueryTester {
             expectedMsg = "Encountered stack overflow error. " +
                           "Try reducing the number of predicate expressions in the query.";
             boolean foundMsg = exception.getMessage().contains(expectedMsg);
-            assert foundMsg : exception.getMessage();
+            assertTrue("Expected text \"" + expectedMsg + "\" did not appear in exception "
+                    + "\"" + exception.getMessage() + "\"", foundMsg);
         }
         finally {
             if (m_client != null) {

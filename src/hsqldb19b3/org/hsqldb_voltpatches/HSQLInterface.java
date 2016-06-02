@@ -326,6 +326,11 @@ public class HSQLInterface {
                 throw new HSQLParseException("Error in \"" + sql + "\" " + caught.getMessage(), caught);
             }
         }
+        catch (StackOverflowError soe) {
+            // This is caught at a higher level by the VoltDB planner, so we can
+            // produce a more helpful error message.
+            throw soe;
+        }
         catch (Throwable caught) {
             // Expectable user errors should have been thrown as HSQLException.
             // So, this throwable should be an unexpected system error.
