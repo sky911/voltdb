@@ -506,8 +506,6 @@ int64_t BinaryLogSink::applyTxn(ReferenceSerializeInputLE *taskInfo,
     sequenceNumber = taskInfo->readLong();
 
     DRTxnPartitionHashFlag hashFlag = static_cast<DRTxnPartitionHashFlag>(taskInfo->readByte());
-    // TODO remove SPECIAL, skipWrongHashRow is always false when flag is REPLICATED, always check hash otherwise
-    // TODO we can look ahead for the type of next record, if it is TRUNCATE, then no need to call isLocalSite(), is it worth?
     isMultiHash = (hashFlag == TXN_PAR_HASH_MULTI || hashFlag == TXN_PAR_HASH_SPECIAL);
     taskInfo->readInt();  // txnLength
     partitionHash = taskInfo->readInt();
@@ -516,7 +514,7 @@ int64_t BinaryLogSink::applyTxn(ReferenceSerializeInputLE *taskInfo,
     }
     else {
         // check MP single hash txn to see if it is for local site.
-        skipWrongHashRows = UniqueId::isMpUniqueId(uniqueId) && hashFlag == TXN_PAR_HASH_SINGLE && !engine->isLocalSite(partitionHash);
+        skipWrongHashRows = hashFlag == TXN_PAR_HASH_SINGLE && UniqueId::isMpUniqueId(uniqueId) && !engine->isLocalSite(partitionHash);
     }
     // Read the whole txn since there is only one version number at the beginning
     type = static_cast<DRRecordType>(taskInfo->readByte());
@@ -733,10 +731,7 @@ int64_t BinaryLogSink::apply(ReferenceSerializeInputLE *taskInfo, const DRRecord
     case DR_RECORD_TRUNCATE_TABLE: {
         int64_t tableHandle = taskInfo->readLong();
         std::string tableName = taskInfo->readTextString();
-        // TODO remove this guard, the hash accompanied with TRUNCATE_TABLE is always -1 and doesn't matter
-        if (skipRow) {
-            break;
-        }
+        // ignore the value of skipRow for truncate table record
 
         boost::unordered_map<int64_t, PersistentTable*>::iterator tableIter = tables.find(tableHandle);
         if (tableIter == tables.end()) {
