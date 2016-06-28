@@ -167,19 +167,15 @@ public class ParsedUnionStmt extends AbstractParsedStmt {
     @Override
     public boolean isOrderDeterministic() {
         ArrayList<AbstractExpression> nonOrdered = new ArrayList<AbstractExpression>();
-        return orderByColumnsDetermineAllDisplayColumns(nonOrdered);
+        ParsedSelectStmt selectStmt = getLeftmostSelectStmt();
+        return selectStmt.orderByColumnsDetermineAllDisplayColumns(selectStmt.displayColumns(), m_orderColumns, nonOrdered);
+
     }
 
     @Override
     public boolean isOrderDeterministicInSpiteOfUnorderedSubqueries() {
         // Set OP should not have its own subqueries
         return isOrderDeterministic();
-    }
-
-    private boolean orderByColumnsDetermineAllDisplayColumns(List<AbstractExpression> nonOrdered)
-    {
-        ParsedSelectStmt selectStmt = getLeftmostSelectStmt();
-        return selectStmt.orderByColumnsDetermineAllDisplayColumns(selectStmt.displayColumns(), m_orderColumns, nonOrdered);
     }
 
     @Override
