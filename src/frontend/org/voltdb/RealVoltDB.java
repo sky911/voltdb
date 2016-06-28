@@ -164,10 +164,10 @@ public class RealVoltDB implements VoltDBInterface, RestoreAgent.Callback, HostM
         "                Changes to this file will be overwritten. Copy it elsewhere if you",
         "                want to use it as a starting point for a custom configuration. -->",
         "<deployment>",
-        "   <cluster hostcount=\"1\" />",
-        "   <httpd enabled=\"true\">",
-        "      <jsonapi enabled=\"true\" />",
-        "   </httpd>",
+        "    <cluster hostcount=\"1\" />",
+        "    <httpd enabled=\"true\">",
+        "        <jsonapi enabled=\"true\" />",
+        "    </httpd>",
         "</deployment>"
     };
 
@@ -180,9 +180,9 @@ public class RealVoltDB implements VoltDBInterface, RestoreAgent.Callback, HostM
     // CatalogContext is immutable, just make sure that accessors see a consistent version
     volatile CatalogContext m_catalogContext;
     private String m_buildString;
-    static final String m_defaultVersionString = "6.4";
+    static final String m_defaultVersionString = "6.5";
     // by default set the version to only be compatible with itself
-    static final String m_defaultHotfixableRegexPattern = "^\\Q6.4\\E\\z";
+    static final String m_defaultHotfixableRegexPattern = "^\\Q6.5\\E\\z";
     // these next two are non-static because they can be overrriden on the CLI for test
     private String m_versionString = m_defaultVersionString;
     private String m_hotfixableRegexPattern = m_defaultHotfixableRegexPattern;
@@ -1082,7 +1082,7 @@ public class RealVoltDB implements VoltDBInterface, RestoreAgent.Callback, HostM
                     // generated below.
                     Set<Integer> hostsOnRing = new HashSet<Integer>();
                     if (!m_leaderAppointer.isClusterKSafe(hostsOnRing)) {
-                        VoltDB.crashGlobalVoltDB("Some partitions have no replicas.  Cluster has become unviable.",
+                        VoltDB.crashLocalVoltDB("Some partitions have no replicas.  Cluster has become unviable.",
                                 false, null);
                     }
                     // Cleanup the rejoin blocker in case the rejoining node failed.
