@@ -599,13 +599,20 @@ public class TestDeterminism extends PlannerTestCase {
                 + "union (select a, b, c from ttree_with_key order by a, b, c limit 1);",
                 false, true, DeterminismMode.FASTER);
 
+        // LHS of union is not deterministic,
+        // but ORDER BY clause deterines order of whole statement.
+        assertPlanDeterminismCore("(select a, b, c from ttree_with_key) "
+                + "union (select a, b, c from ttree_with_key order by a, b, c limit 1) "
+                + "order by a, b, c;",
+                true, true, DeterminismMode.FASTER);
+
         // RHS of union is not deterministic
         assertPlanDeterminismCore("(select a, b, c from ttree_with_key order by a, b, c limit 1) "
                 + "union (select a, b, c from ttree_with_key);",
                 false, true, DeterminismMode.FASTER);
 
         assertPlanDeterminismCore("(select a, b, c from ttree_with_key order by a, b, c limit 1) "
-                + "union (select a, b, c from ttree_with_key) ",
+                + "union (select a, b, c from ttree_with_key) "
                 + "union (select a, b, c from ttree_with_key);",
                 false, true, DeterminismMode.FASTER);
 
