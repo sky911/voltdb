@@ -604,6 +604,11 @@ public class TestDeterminism extends PlannerTestCase {
                 + "union (select a, b, c from ttree_with_key);",
                 false, true, DeterminismMode.FASTER);
 
+        assertPlanDeterminismCore("(select a, b, c from ttree_with_key order by a, b, c limit 1) "
+                + "union (select a, b, c from ttree_with_key) ",
+                + "union (select a, b, c from ttree_with_key);",
+                false, true, DeterminismMode.FASTER);
+
         // Both sides are deterministic; whole statement is deterministic
         assertPlanDeterminismCore("(select a, b, c from ttree_with_key order by a, b, c) "
                 + "union (select a, b, c from ttree_with_key order by a, b, c limit 1);",

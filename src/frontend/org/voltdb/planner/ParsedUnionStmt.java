@@ -52,9 +52,9 @@ public class ParsedUnionStmt extends AbstractParsedStmt {
     };
 
     // Limit plan node information.
-    private LimitOffset m_limitOffset = new LimitOffset();
+    private final LimitOffset m_limitOffset = new LimitOffset();
     // Order by
-    private ArrayList<ParsedColInfo> m_orderColumns = new ArrayList<ParsedColInfo>();
+    private final ArrayList<ParsedColInfo> m_orderColumns = new ArrayList<ParsedColInfo>();
 
     public ArrayList<AbstractParsedStmt> m_children = new ArrayList<AbstractParsedStmt>();
     public UnionType m_unionType = UnionType.NOUNION;
@@ -164,12 +164,31 @@ public class ParsedUnionStmt extends AbstractParsedStmt {
         m_joinOrder = joinOrder;
     }
 
-    @Override
-    public boolean isOrderDeterministic() {
+    private boolean isOrderDeterministicHelper(List<ParsedColInfo> orderColumns) {
+
+        for (int i = 1; i < m_children.size(); ++i) {
+            if (! m_children.get(i).isOrderDeterministic()) {
+                return false;
+            }
+        }
+
+        // Okay, all but the leftmost child of this set op are deterministic.
+        if (orderColumns.isEmpty()) {
+            return m_children.get(0).isOrderDeterministic();
+        }
+
+        // If there is an ORDER BY clause on the set operator, then the aliases in the ORDER BY clause refer to items
+        // on the SELECT list of the leftmost select statement.  Our leftmost child may be another set operator,
+        // so we need to recurse here and
+
         ArrayList<AbstractExpression> nonOrdered = new ArrayList<AbstractExpression>();
         ParsedSelectStmt selectStmt = getLeftmostSelectStmt();
-        return selectStmt.orderByColumnsDetermineAllDisplayColumns(selectStmt.displayColumns(), m_orderColumns, nonOrdered);
+        return selectStmt.orderByColumnsDetermineAllDisplayColumns(selectStmt.displayColumns(), orderColumns, nonOrdered);
+    }
 
+    @Override
+    public boolean isOrderDeterministic() {
+        return isOrderDeterministicHelper(m_orderColumns);
     }
 
     @Override
