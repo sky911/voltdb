@@ -64,6 +64,7 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         CountDownLatch latch = new CountDownLatch(1);
         (new SocketDataPusher("localhost", 7001, latch, myData)).start();
+        latch.await();
 
         VoltTable ts_table = client.callProcedure("@AdHoc", "SELECT * FROM importCSVTable ORDER BY clm_integer;")
                 .getResults()[0];
@@ -105,6 +106,7 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         CountDownLatch latch = new CountDownLatch(1);
         (new SocketDataPusher("localhost", 7001, latch, myData)).start();
+        latch.await();
 
         VoltTable ts_table = client.callProcedure("@AdHoc", "SELECT * FROM importCSVTable ORDER BY clm_integer;")
                 .getResults()[0];
@@ -126,6 +128,7 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
                 "1,1,1,1,\"Jesus\"loves you\",1.10,1.11,\"7777-12-25 14:35:26\",\"POINT(1 1)\",\"POLYGON((0 0, 1 0, 0 1, 0 0))\"\n", };
         CountDownLatch latch = new CountDownLatch(1);
         (new SocketDataPusher("localhost", 7001, latch, myData)).start();
+        latch.await();
 
         VoltTable ts_table = client.callProcedure("@AdHoc", "SELECT * FROM importCSVTable ORDER BY clm_integer;")
                 .getResults()[0];
@@ -150,6 +153,7 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         CountDownLatch latch = new CountDownLatch(1);
         (new SocketDataPusher("localhost", 7002, latch, myData)).start();
+        latch.await();
 
         VoltTable ts_table = client.callProcedure("@AdHoc", "SELECT * FROM importCSVTable ORDER BY clm_integer;")
                 .getResults()[0];
@@ -170,6 +174,7 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         CountDownLatch latch = new CountDownLatch(1);
         (new SocketDataPusher("localhost", 7002, latch, myData)).start();
+        latch.await();
 
         VoltTable ts_table = client.callProcedure("@AdHoc", "SELECT * FROM importCSVTable ORDER BY clm_integer;")
                 .getResults()[0];
@@ -200,8 +205,10 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         // configure socket importer 1
         Properties props = new Properties();
-        props.putAll(ImmutableMap.<String, String> of("port", "7001", "decode", "true", "procedure",
-                "importCSVTable.insert"));
+        props.putAll(ImmutableMap.<String, String> of(
+                "port", "7001",
+                "decode", "true",
+                "procedure", "importCSVTable.insert"));
 
         Properties formatConfig = new Properties();
         formatConfig.setProperty("nullstring", "test");
@@ -215,8 +222,10 @@ public class TestCSVFormatterSuite extends TestCSVFormatterSuiteBase {
 
         // configure socket importer 2
         props = new Properties();
-        props.putAll(ImmutableMap.<String, String> of("port", "7002", "decode", "true", "procedure",
-                "importCSVTable.insert"));
+        props.putAll(ImmutableMap.<String, String> of(
+                "port", "7002",
+                "decode", "true",
+                "procedure", "importCSVTable.insert"));
 
         formatConfig = new Properties();
         formatConfig.setProperty("nullstring", "test");
